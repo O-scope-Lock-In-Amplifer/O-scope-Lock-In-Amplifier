@@ -1,14 +1,14 @@
 import logging
 import time
 from typing import Optional
+
 import numpy as np  # type: ignore
+import pyvisa
 from tqdm.auto import trange
 
-import pyvisa
-
 from o_scope_lock_in_amplifier.oscilloscope_utils import (
-    OscilloscopeChannels,
     AcquisitionData,
+    OscilloscopeChannels,
     OScope,
     allowed_vals,
 )
@@ -154,8 +154,8 @@ class DS1054z(OScope):
 
 
 if __name__ == "__main__":
-    import matplotlib.pyplot as plt  # type: ignore
     import matplotlib
+    import matplotlib.pyplot as plt  # type: ignore
 
     matplotlib.use("qtagg")
 

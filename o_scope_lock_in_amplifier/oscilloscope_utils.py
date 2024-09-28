@@ -2,7 +2,7 @@ import abc
 import dataclasses
 from enum import Enum
 from functools import wraps
-from typing import TypeVar, Callable, Any, List, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional, TypeVar
 
 import numpy as np
 

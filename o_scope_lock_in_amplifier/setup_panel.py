@@ -1,26 +1,28 @@
 # setup_panel.py
 
+from enum import Enum
 import inspect
+import logging
+from typing import Any, Dict, List, Optional, Type
+
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QDoubleValidator, QIntValidator
 from PySide6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-    QLabel,
+    QCheckBox,
     QComboBox,
     QFormLayout,
-    QPushButton,
-    QScrollArea,
     QGroupBox,
+    QLabel,
     QLineEdit,
     QMessageBox,
-    QCheckBox,
+    QPushButton,
+    QScrollArea,
+    QVBoxLayout,
+    QWidget,
 )
-from PySide6.QtCore import Signal, Qt
-from PySide6.QtGui import QIntValidator, QDoubleValidator
+
 from o_scope_lock_in_amplifier import scope_types
 from o_scope_lock_in_amplifier.oscilloscope_utils import OScope
-from typing import Any, Dict, Optional, Type, List
-from enum import Enum
-import logging
 
 logger = logging.getLogger("o_scope_lock_in_amplifier")
 

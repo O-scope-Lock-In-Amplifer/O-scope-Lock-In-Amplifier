@@ -1,17 +1,18 @@
 # setup_panel.py
+from typing import Type
+
 from PySide2.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
-    QLabel,
     QComboBox,
     QFormLayout,
+    QHBoxLayout,
+    QLabel,
     QLineEdit,
     QPushButton,
     QScrollArea,
+    QVBoxLayout,
+    QWidget,
 )
-from oscilloscope import scope_types, OScope
-from typing import Type
+from oscilloscope import OScope, scope_types
 
 
 class SetupPanel(QWidget):

@@ -13,8 +13,8 @@ Date: YYYY-MM-DD
 
 import time
 
-import numpy as np
 from matplotlib import pyplot as plt
+import numpy as np
 from scipy.fft import fft, fftfreq
 from scipy.signal import butter, filtfilt
 

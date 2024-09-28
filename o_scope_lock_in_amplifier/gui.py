@@ -1,39 +1,39 @@
 # main.py
 
+import csv
 import logging
 import sys
 import time
-import csv
 from typing import Optional
 
+from PySide6.QtCore import QObject, Qt, QThread, Signal
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QApplication,
-    QMainWindow,
-    QWidget,
-    QVBoxLayout,
-    QLabel,
-    QProgressBar,
-    QPushButton,
-    QHBoxLayout,
-    QMessageBox,
-    QTabWidget,
-    QMenuBar,
-    QMenu,
+    QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
-    QDoubleSpinBox,
+    QHBoxLayout,
+    QLabel,
+    QMainWindow,
+    QMenu,
+    QMenuBar,
+    QMessageBox,
+    QProgressBar,
+    QPushButton,
     QSpinBox,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
 )
-from PySide6.QtCore import Qt, QThread, Signal, QObject
+from lock_in_proc import generate_reference_signals, perform_lock_in
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FuncFormatter
-
+import numpy as np
 from plot_widget import PlotWidget
 from setup_panel import SetupPanel
-from lock_in_proc import perform_lock_in, generate_reference_signals
+
 from o_scope_lock_in_amplifier.oscilloscope_utils import OScope
-import numpy as np
 
 logger = logging.getLogger("o_scope_lock_in_amplifier")
 
@@ -53,7 +53,7 @@ def format_si_prefix(value, unit):
         return f"0 {unit}"
     exponent = int(np.floor(np.log10(abs(value)) / 3) * 3)
     exponent = min(max(exponent, -24), 24)
-    value_scaled = value / (10 ** exponent)
+    value_scaled = value / (10**exponent)
     prefixes = {
         -24: "y",
         -21: "z",
@@ -527,7 +527,9 @@ class MainWindow(QMainWindow):
         ref_rms = np.sqrt(np.mean(np.square(data.ref_dat)))
         # Scale sin_ref to match amplitude
         scaled_sin_ref = ref_rms * np.sqrt(2) * sin_ref
-        axs[0, 0].plot(t, scaled_sin_ref, label="In-Phase Component (Scaled)", alpha=0.7)
+        axs[0, 0].plot(
+            t, scaled_sin_ref, label="In-Phase Component (Scaled)", alpha=0.7
+        )
         axs[0, 0].set_xlabel("Time (s)")
         axs[0, 0].set_ylabel("Voltage (V)")
         axs[0, 0].set_title("Reference Data and In-Phase Component")
@@ -550,7 +552,9 @@ class MainWindow(QMainWindow):
         axs[1, 0].legend()
         axs[1, 0].grid(True)
         # Autoscale y-axis with SI prefixes
-        axs[1, 0].yaxis.set_major_formatter(FuncFormatter(lambda y, _: format_si_prefix(y, "V")))
+        axs[1, 0].yaxis.set_major_formatter(
+            FuncFormatter(lambda y, _: format_si_prefix(y, "V"))
+        )
 
         # Plot recovered phase
         axs[1, 1].plot(t, phase, label="Recovered Phase (degrees)", color="c")
@@ -560,7 +564,9 @@ class MainWindow(QMainWindow):
         axs[1, 1].legend()
         axs[1, 1].grid(True)
 
-        plt.tight_layout(rect=[0, 0.03, 1, 0.95])  # Adjust layout to make room for the title
+        plt.tight_layout(
+            rect=[0, 0.03, 1, 0.95]
+        )  # Adjust layout to make room for the title
         plt.show()
 
     def closeEvent(self, event):

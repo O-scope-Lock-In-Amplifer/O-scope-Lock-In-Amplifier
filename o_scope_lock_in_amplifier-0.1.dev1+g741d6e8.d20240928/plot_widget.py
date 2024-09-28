@@ -1,5 +1,5 @@
 # plot_widget.py
-from PySide2.QtWidgets import QWidget, QVBoxLayout
+from PySide2.QtWidgets import QVBoxLayout, QWidget
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
