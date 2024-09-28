@@ -10,11 +10,15 @@ description = "Turn your oscilloscope into a lock in amplifier with this one sim
 readme = "readme.md"
 dynamic = ["version"]
 requires-python = ">=3.10.0"
-dependencies = []  # TODO: Add your dependencies!
+dependencies = [
+	"pyvisa",
+	"types-tqdm",
+	"pyside6"
+]
 
 [project.optional-dependencies]
 dev = [  # TODO: Pin your development dependency versions!
-	"black-with-tabs",
+	"black",
 	"build",
 	"flake8",
 	"flake8-docstrings",
@@ -31,9 +35,8 @@ dev = [  # TODO: Pin your development dependency versions!
 	"sphinx",
 	"types-setuptools",
 	"typing-extensions",
-	# TODO: If you're using ``typing-extensions`` at runtime, it needs
-	#  to be in ``install_requires``.
 	"wheel",
+	"tox"
 ]
 
 [project.scripts]

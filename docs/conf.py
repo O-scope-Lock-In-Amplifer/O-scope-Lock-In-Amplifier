@@ -1,4 +1,5 @@
 """Configuration file for the Sphinx documentation builder."""
+
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -38,10 +39,10 @@ extensions = ["sphinx.ext.autodoc", "sphinx.ext.intersphinx"]
 # autodoc options
 autodoc_member_order = "bysource"
 autodoc_default_options = {
-	"member-order": "bysource",
-	# "undoc-members": True,
-	"exclude-members": "__weakref__",
-	# "special-members": "__init__, __new__",
+    "member-order": "bysource",
+    # "undoc-members": True,
+    "exclude-members": "__weakref__",
+    # "special-members": "__init__, __new__",
 }
 
 maximum_signature_line_length = 80
@@ -73,11 +74,11 @@ html_static_path = ["_static"]
 latex_logo = "_static/MENGR-Logo.png"
 
 latex_elements = {
-	"sphinxsetup": (
-		"InnerLinkColor={rgb}{0,0.374,1.000}, OuterLinkColor={rgb}{0,0.374,1.000}"
-	),
-	"extraclassoptions": "openany,oneside",
-	"preamble": r"""
+    "sphinxsetup": (
+        "InnerLinkColor={rgb}{0,0.374,1.000}, OuterLinkColor={rgb}{0,0.374,1.000}"
+    ),
+    "extraclassoptions": "openany,oneside",
+    "preamble": r"""
 \makeatletter
    \fancypagestyle{normal}{
 % this is the stuff in sphinx.sty
@@ -88,10 +89,10 @@ latex_elements = {
     %\fancyfoot[RE]{{\py@HeaderFamily\nouppercase{\leftmark}}}
 % add copyright stuff
     \fancyfoot[LO,RE]{{\textcopyright\ """
-	+ copyright
-	+ " v"
-	+ get_version(root="..")
-	+ r"""}}
+    + copyright
+    + " v"
+    + get_version(root="..")
+    + r"""}}
 % again original stuff
     \fancyhead[LE,RO]{{\py@HeaderFamily \@title\sphinxheadercomma\py@release}}
     \renewcommand{\headrulewidth}{0.4pt}
@@ -106,14 +107,14 @@ latex_elements = {
 % add copyright stuff for example at left of footer on odd pages,
 % which is the case for chapter opening page by default
     \fancyfoot[LO,RE]{{\textcopyright\ """
-	+ copyright
-	+ " v"
-	+ get_version(root="..")
-	+ r"""}}
+    + copyright
+    + " v"
+    + get_version(root="..")
+    + r"""}}
     }
 \makeatother
 """,
-	"printindex": r"""
+    "printindex": r"""
 \let\oldtwocolumn\twocolumn
 \renewcommand{\twocolumn}[1][]{#1}
 \printindex
@@ -122,11 +123,11 @@ latex_elements = {
 }
 
 latex_documents = [
-	(
-		"index",
-		f'o_scope_lock_in_amplifier.v{get_version(root="..")}.tex',
-		"Turn your oscilloscope into a lock in amplifier with this one simple trick!",
-		"Marcus Engineering, LLC",
-		"manual",
-	),
+    (
+        "index",
+        f'o_scope_lock_in_amplifier.v{get_version(root="..")}.tex',
+        "Turn your oscilloscope into a lock in amplifier with this one simple trick!",
+        "Marcus Engineering, LLC",
+        "manual",
+    ),
 ]
