@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Documentation" pattern="file:*.txt||file:*.md||file:*.rst" />
+</component>

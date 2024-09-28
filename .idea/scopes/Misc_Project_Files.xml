@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Misc Project Files" pattern="!file:*.py&amp;&amp;!file:.*/*&amp;&amp;file:*" />
+</component>

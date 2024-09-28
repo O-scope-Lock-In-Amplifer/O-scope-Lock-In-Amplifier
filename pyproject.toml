@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+# TODO: Pin your build system dependency versions!
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "o_scope_lock_in_amplifier"
+authors = [{name = "Marcus Engineering, LLC"}]
+description = "Turn your oscilloscope into a lock in amplifier with this one simple trick!."
+readme = "readme.md"
+dynamic = ["version"]
+requires-python = ">=3.10.0"
+dependencies = []  # TODO: Add your dependencies!
+
+[project.optional-dependencies]
+dev = [  # TODO: Pin your development dependency versions!
+	"black-with-tabs",
+	"build",
+	"flake8",
+	"flake8-docstrings",
+	"flake8-isort",
+	"flake8-noqa",
+	"isort",
+	"mypy",
+	"mypy-extensions",
+	"pep8-naming",
+	"pydocstyle",
+	"pytest",
+	"setuptools",
+	"setuptools_scm",
+	"sphinx",
+	"types-setuptools",
+	"typing-extensions",
+	# TODO: If you're using ``typing-extensions`` at runtime, it needs
+	#  to be in ``install_requires``.
+	"wheel",
+]
+
+[project.scripts]
+o_scope_lock_in_amplifier = "o_scope_lock_in_amplifier.cli:main"
+
+[tool.setuptools]
+packages = [
+	"o_scope_lock_in_amplifier",
+	# TODO: Made subpackages? Don't forget to add them to the ``packages`` list.
+	#  i.e., if you make a package ``o_scope_lock_in_amplifier.sub_thing``, it
+	#  MAY NOT be included in the install unless you add it here!
+]
+
+[tool.setuptools.package-data]
+o_scope_lock_in_amplifier = [
+	"py.typed",
+]
+
+[tool.setuptools_scm]
+
+[tool.pytest.ini_options]
+addopts = [
+	"--import-mode=importlib",
+]
