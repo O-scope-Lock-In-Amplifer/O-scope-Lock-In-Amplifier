@@ -33,10 +33,3 @@ jobs:
       - name: Run tox environment
         run: |
           tox -e ${{ matrix.toxenv }}
-
-      - name: Upload Documentation PDFs
-        if: ${{ matrix.toxenv == 'run_tests' }}  # Only upload after running tests
-        uses: actions/upload-artifact@v3
-        with:
-          name: Documentation PDFs
-          path: docs/_build/latex/*.pdf
