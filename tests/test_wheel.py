@@ -14,11 +14,6 @@ class TestUtil(unittest.TestCase):
 
     def test_wheel_include(self) -> None:
         """Test that the built wheel includes all the files in the package."""
-        # TODO: If you have more top-level packages (which you shouldn't),
-        #  they need to be added here (and in setup.py).
-        #  Also, if you have files that actually shouldn't be in the wheel,
-        #  like caches (other than __pycache__), you need to add code here to
-        #  delete them before comparison.
         self._test_wheel_include("o_scope_lock_in_amplifier")
 
     def setUp(self) -> None:
@@ -38,7 +33,7 @@ class TestUtil(unittest.TestCase):
             raise RuntimeError("Unknown interpreter!")
         interpeter = sys.executable
         os.chdir(self.proj_dir)
-        os.system(f"{interpeter} -m build --wheel")
+        os.system(f"\"{interpeter}\" -m build --wheel")
 
     def _test_wheel_include(
         self, mod_dir_name: str, mod_whl_name: Optional[str] = None
