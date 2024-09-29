@@ -33,7 +33,7 @@ class TestUtil(unittest.TestCase):
             raise RuntimeError("Unknown interpreter!")
         interpeter = sys.executable
         os.chdir(self.proj_dir)
-        os.system(f"\"{interpeter}\" -m build --wheel")
+        os.system(f'"{interpeter}" -m build --wheel')
 
     def _test_wheel_include(
         self, mod_dir_name: str, mod_whl_name: Optional[str] = None
