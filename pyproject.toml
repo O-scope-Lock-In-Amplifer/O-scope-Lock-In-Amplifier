@@ -1,6 +1,5 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
-# TODO: Pin your build system dependency versions!
+requires = ["setuptools~=75.1.0", "setuptools-scm~=8.1.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -11,37 +10,37 @@ readme = "readme.md"
 dynamic = ["version"]
 requires-python = ">=3.10.0"
 dependencies = [
-	"pyvisa",
-	"types-tqdm",
-	"pyside6",
-    "numpy",
-    "matplotlib",
-    "tqdm"
+	"pyvisa~=1.14.1",
+	"types-tqdm~=4.66.0.20240417",
+	"pyside6~=6.7.3",
+    "numpy~=2.1.1",
+    "matplotlib~=3.9.2",
+    "tqdm~=4.66.5"
 ]
 
 [project.optional-dependencies]
-dev = [  # TODO: Pin your development dependency versions!
-	"black",
-	"build",
-	"flake8",
-	"flake8-docstrings",
-	"flake8-isort",
-	"flake8-noqa",
-	"isort",
-	"mypy",
-	"mypy-extensions",
-	"pep8-naming",
-	"pydocstyle",
-	"pytest",
-	"setuptools",
-	"setuptools_scm",
-	"sphinx",
-	"types-setuptools",
-	"typing-extensions",
-	"wheel",
-	"tox",
-    "PySide6-stubs",
-    "scipy-stubs"
+dev = [
+	"black~=24.8.0",
+	"build~=1.2.2",
+	"flake8~=7.1.1",
+	"flake8-docstrings~=1.7.0",
+	"flake8-isort~=6.1.1",
+	"flake8-noqa~=1.4.0",
+	"isort~=5.13.2",
+	"mypy~=1.11.2",
+	"mypy-extensions~=1.0.0",
+	"pep8-naming~=0.14.1",
+	"pydocstyle~=6.3.0",
+	"pytest~=8.3.3",
+	"setuptools~=75.1.0",
+	"setuptools_scm~=8.1.0",
+	"sphinx~=8.0.2",
+	"types-setuptools~=75.1.0.20240917",
+	"typing-extensions~=4.12.2",
+	"wheel~=0.44.0",
+	"tox~=4.20.0",
+    "PySide6-stubs~=6.4.2.0",
+    "scipy-stubs~=1.4.1a3"
 ]
 
 [project.scripts]
@@ -50,9 +49,6 @@ o_scope_lock_in_amplifier = "o_scope_lock_in_amplifier.cli:main"
 [tool.setuptools]
 packages = [
 	"o_scope_lock_in_amplifier",
-	# TODO: Made subpackages? Don't forget to add them to the ``packages`` list.
-	#  i.e., if you make a package ``o_scope_lock_in_amplifier.sub_thing``, it
-	#  MAY NOT be included in the install unless you add it here!
 ]
 
 [tool.setuptools.package-data]
