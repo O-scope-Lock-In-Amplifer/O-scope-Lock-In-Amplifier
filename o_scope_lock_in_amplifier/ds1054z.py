@@ -1,8 +1,7 @@
 import logging
 import time
-from typing import Optional
 
-import numpy as np  # type: ignore
+import numpy as np
 import pyvisa
 from tqdm.auto import trange
 
@@ -33,9 +32,9 @@ class DS1054z(OScope):
                     break
         if conn_str == "auto":
             raise RuntimeError(
-                f"Could not find a USB Device! Try passing a conn_string; e.x. for IP TCPIP::<ip address>::inst0::INSTR\nFound:\n\t{'\n\t'.join(self.rm.list_resources())}"
+                "Could not find a USB Device! Try passing a conn_string; e.x. for IP TCPIP::<ip address>::inst0::INSTR\nFound:\n\t"
+                + "\n\t".join(self.rm.list_resources())
             )
-
         self.scope: pyvisa.resources.usb.USBInstrument = self.rm.open_resource(  # type: ignore
             conn_str
         )
@@ -155,7 +154,7 @@ class DS1054z(OScope):
 
 if __name__ == "__main__":
     import matplotlib
-    import matplotlib.pyplot as plt  # type: ignore
+    import matplotlib.pyplot as plt
 
     matplotlib.use("qtagg")
 
@@ -168,6 +167,6 @@ if __name__ == "__main__":
     r = s.get_data()
 
     r = s.get_data()
-    # plt.plot(r.ref_dat)
-    # plt.plot(r.aqu_dat)
-    # plt.show()
+    plt.plot(r.ref_dat)
+    plt.plot(r.aqu_dat)
+    plt.show()

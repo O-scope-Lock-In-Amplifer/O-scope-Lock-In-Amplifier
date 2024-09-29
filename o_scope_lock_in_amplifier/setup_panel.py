@@ -29,7 +29,12 @@ logger = logging.getLogger("o_scope_lock_in_amplifier")
 
 # Base class for type handlers
 class TypeHandler:
-    def create_widget(self, annotation: Any, default: Any = None) -> QWidget:
+    def create_widget(
+        self,
+        annotation: Any,
+        allowed_values: Optional[List[Any]] = None,
+        default: Any = None,
+    ) -> QWidget:
         """Create and return a widget based on the type annotation."""
         raise NotImplementedError
 
@@ -40,7 +45,12 @@ class TypeHandler:
 
 # Handler for integer types
 class IntHandler(TypeHandler):
-    def create_widget(self, annotation: Any, default: Any = None) -> QWidget:
+    def create_widget(
+        self,
+        annotation: Any,
+        allowed_values: Optional[List[Any]] = None,
+        default: Any = None,
+    ) -> QLineEdit:
         line_edit = QLineEdit()
         int_validator = QIntValidator()
         int_validator.setBottom(0)  # Adjust as needed
@@ -50,6 +60,11 @@ class IntHandler(TypeHandler):
         return line_edit
 
     def get_value(self, widget: QWidget, annotation: Any) -> Optional[Any]:
+        if not isinstance(widget, QLineEdit):
+            logger.error(
+                f"IntHandler.get_value: Expected QLineEdit, got {type(widget)}"
+            )
+            return None
         text = widget.text()
         try:
             value = int(text)
@@ -62,7 +77,12 @@ class IntHandler(TypeHandler):
 
 # Handler for float types
 class FloatHandler(TypeHandler):
-    def create_widget(self, annotation: Any, default: Any = None) -> QWidget:
+    def create_widget(
+        self,
+        annotation: Any,
+        allowed_values: Optional[List[Any]] = None,
+        default: Any = None,
+    ) -> QLineEdit:
         line_edit = QLineEdit()
         double_validator = QDoubleValidator()
         double_validator.setBottom(0.0)  # Adjust as needed
@@ -72,6 +92,11 @@ class FloatHandler(TypeHandler):
         return line_edit
 
     def get_value(self, widget: QWidget, annotation: Any) -> Optional[Any]:
+        if not isinstance(widget, QLineEdit):
+            logger.error(
+                f"FloatHandler.get_value: Expected QLineEdit, got {type(widget)}"
+            )
+            return None
         text = widget.text()
         try:
             value = float(text)
@@ -84,13 +109,23 @@ class FloatHandler(TypeHandler):
 
 # Handler for string types
 class StrHandler(TypeHandler):
-    def create_widget(self, annotation: Any, default: Any = None) -> QWidget:
+    def create_widget(
+        self,
+        annotation: Any,
+        allowed_values: Optional[List[Any]] = None,
+        default: Any = None,
+    ) -> QLineEdit:
         line_edit = QLineEdit()
         if default is not None:
             line_edit.setText(default)
         return line_edit
 
     def get_value(self, widget: QWidget, annotation: Any) -> Optional[Any]:
+        if not isinstance(widget, QLineEdit):
+            logger.error(
+                f"StrHandler.get_value: Expected QLineEdit, got {type(widget)}"
+            )
+            return None
         text = widget.text()
         logger.debug(f"QLineEdit text: {text}")
         return text
@@ -98,13 +133,23 @@ class StrHandler(TypeHandler):
 
 # Handler for list types
 class ListHandler(TypeHandler):
-    def create_widget(self, annotation: Any, default: Any = None) -> QWidget:
+    def create_widget(
+        self,
+        annotation: Any,
+        allowed_values: Optional[List[Any]] = None,
+        default: Any = None,
+    ) -> QLineEdit:
         line_edit = QLineEdit()
         if default is not None and isinstance(default, list):
             line_edit.setText(",".join(map(str, default)))
         return line_edit
 
     def get_value(self, widget: QWidget, annotation: Any) -> Optional[Any]:
+        if not isinstance(widget, QLineEdit):
+            logger.error(
+                f"ListHandler.get_value: Expected QLineEdit, got {type(widget)}"
+            )
+            return None
         text = widget.text()
         value = [item.strip() for item in text.split(",") if item.strip()]
         logger.debug(f"Converted QLineEdit text '{text}' to list '{value}'")
@@ -113,7 +158,12 @@ class ListHandler(TypeHandler):
 
 # Handler for Enum types
 class EnumHandler(TypeHandler):
-    def create_widget(self, annotation: Any, default: Any = None) -> QWidget:
+    def create_widget(
+        self,
+        annotation: Any,
+        allowed_values: Optional[List[Any]] = None,
+        default: Any = None,
+    ) -> QComboBox:
         combo = QComboBox()
         combo.addItems([member.name for member in annotation])
         if default is not None and isinstance(default, Enum):
@@ -121,6 +171,11 @@ class EnumHandler(TypeHandler):
         return combo
 
     def get_value(self, widget: QWidget, annotation: Any) -> Optional[Any]:
+        if not isinstance(widget, QComboBox):
+            logger.error(
+                f"EnumHandler.get_value: Expected QComboBox, got {type(widget)}"
+            )
+            return None
         current_text = widget.currentText()
         try:
             value = annotation[current_text]
@@ -137,13 +192,23 @@ class EnumHandler(TypeHandler):
 
 # Handler for boolean types
 class BoolHandler(TypeHandler):
-    def create_widget(self, annotation: Any, default: Any = None) -> QWidget:
+    def create_widget(
+        self,
+        annotation: Any,
+        allowed_values: Optional[List[Any]] = None,
+        default: Any = None,
+    ) -> QCheckBox:
         checkbox = QCheckBox()
         if default is not None:
             checkbox.setChecked(bool(default))
         return checkbox
 
     def get_value(self, widget: QWidget, annotation: Any) -> Optional[Any]:
+        if not isinstance(widget, QCheckBox):
+            logger.error(
+                f"BoolHandler.get_value: Expected QCheckBox, got {type(widget)}"
+            )
+            return None
         value = widget.isChecked()
         logger.debug(f"QCheckBox isChecked: {value}")
         return value
@@ -152,8 +217,13 @@ class BoolHandler(TypeHandler):
 # Handler for ComboBox with allowed values (for non-Enum types)
 class ComboBoxHandler(TypeHandler):
     def create_widget(
-        self, annotation: Any, allowed_values: List[Any], default: Any = None
-    ) -> QWidget:
+        self,
+        annotation: Any,
+        allowed_values: Optional[List[Any]] = None,
+        default: Any = None,
+    ) -> QComboBox:
+        if allowed_values is None:
+            raise ValueError("ComboBoxHandler.create_widget requires allowed_values")
         combo = QComboBox()
         combo.addItems([str(val) for val in allowed_values])
         if default is not None:
@@ -161,6 +231,11 @@ class ComboBoxHandler(TypeHandler):
         return combo
 
     def get_value(self, widget: QWidget, annotation: Any) -> Optional[Any]:
+        if not isinstance(widget, QComboBox):
+            logger.error(
+                f"ComboBoxHandler.get_value: Expected QComboBox, got {type(widget)}"
+            )
+            return None
         current_text = widget.currentText()
         try:
             if isinstance(annotation, type) and issubclass(annotation, Enum):
@@ -170,28 +245,28 @@ class ComboBoxHandler(TypeHandler):
                 )
                 return value
             elif annotation == int:
-                value = int(current_text)
+                int_value = int(current_text)
                 logger.debug(
-                    f"Converted QComboBox selection '{current_text}' to int '{value}'"
+                    f"Converted QComboBox selection '{current_text}' to int '{int_value}'"
                 )
-                return value
+                return int_value
             elif annotation == float:
-                value = float(current_text)
+                float_value = float(current_text)
                 logger.debug(
-                    f"Converted QComboBox selection '{current_text}' to float '{value}'"
+                    f"Converted QComboBox selection '{current_text}' to float '{float_value}'"
                 )
-                return value
+                return float_value
             elif annotation == str:
                 logger.debug(f"QComboBox selected value: {current_text}")
                 return current_text
             elif getattr(annotation, "__origin__", None) == list:
-                value = [
+                list_value = [
                     item.strip() for item in current_text.split(",") if item.strip()
                 ]
                 logger.debug(
-                    f"Converted QComboBox selection '{current_text}' to list '{value}'"
+                    f"Converted QComboBox selection '{current_text}' to list '{list_value}'"
                 )
-                return value
+                return list_value
             else:
                 logger.warning(f"Unsupported type '{annotation}' for ComboBoxHandler.")
                 return current_text
@@ -215,10 +290,10 @@ class SetupPanel(QWidget):
     # Define a custom signal to emit the configured oscilloscope
     oscilloscope_configured = Signal(OScope)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
-        self.layout = QVBoxLayout()
+        self.main_layout = QVBoxLayout()
 
         # Dictionary to hold method configurations
         # Key: method name, Value: dict of argument widgets
@@ -241,26 +316,28 @@ class SetupPanel(QWidget):
         self.init_params_widgets: Dict[str, QWidget] = {}
 
         # Scroll area for method configurations
-        self.scroll = QScrollArea()
-        self.scroll.setWidgetResizable(True)
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
         self.scroll_content = QWidget()
         self.scroll_layout = QVBoxLayout()
         self.scroll_content.setLayout(self.scroll_layout)
-        self.scroll.setWidget(self.scroll_content)
+        self.scroll_area.setWidget(self.scroll_content)
 
         # Initialize oscilloscope button
         self.init_run_button = QPushButton("Initialize Oscilloscope")
         self.init_run_button.clicked.connect(self.initialize_oscilloscope)
 
         # Add widgets to the main layout
-        self.layout.addWidget(QLabel("Select Oscilloscope Type:"))
-        self.layout.addWidget(self.scope_type_combo)
-        self.layout.addWidget(self.init_group_box)
-        self.layout.addWidget(self.init_run_button, alignment=Qt.AlignRight)
-        self.layout.addWidget(QLabel("Configure Methods:"))
-        self.layout.addWidget(self.scroll)
+        self.main_layout.addWidget(QLabel("Select Oscilloscope Type:"))
+        self.main_layout.addWidget(self.scope_type_combo)
+        self.main_layout.addWidget(self.init_group_box)
+        self.main_layout.addWidget(
+            self.init_run_button, alignment=Qt.AlignmentFlag.AlignRight
+        )
+        self.main_layout.addWidget(QLabel("Configure Methods:"))
+        self.main_layout.addWidget(self.scroll_area)
 
-        self.setLayout(self.layout)
+        self.setLayout(self.main_layout)
 
         # Initialize with the first scope
         self.populate_init_config(0)
@@ -268,7 +345,7 @@ class SetupPanel(QWidget):
         # Initialize the oscilloscope attribute
         self.oscilloscope: Optional[OScope] = None
 
-    def populate_init_config(self, index: int):
+    def populate_init_config(self, index: int) -> None:
         """
         Populate the initialization configuration based on the selected oscilloscope's __init__ parameters.
         """
@@ -314,7 +391,7 @@ class SetupPanel(QWidget):
                 f"Added init parameter: {name} (type: {param_type}, default: {param_default})"
             )
 
-    def initialize_oscilloscope(self):
+    def initialize_oscilloscope(self) -> None:
         """
         Instantiate the oscilloscope with the provided __init__ parameters.
         Then, populate the method configurations.
@@ -363,7 +440,7 @@ class SetupPanel(QWidget):
             f"Oscilloscope {oscilloscope.idn} initialized successfully.",
         )
 
-    def populate_method_config(self, scope_class: Type[OScope]):
+    def populate_method_config(self, scope_class: Type[OScope]) -> None:
         """
         Populate the method configurations based on the oscilloscope's methods.
         Each method will have its own QGroupBox with input widgets and a Run button.
@@ -461,7 +538,7 @@ class SetupPanel(QWidget):
         # Add stretch to push widgets to the top
         self.scroll_layout.addStretch()
 
-    def run_method(self, method_name: str, args_widgets: Dict[str, QWidget]):
+    def run_method(self, method_name: str, args_widgets: Dict[str, QWidget]) -> None:
         """
         Execute a single method with the provided arguments.
         """
@@ -513,18 +590,18 @@ class SetupPanel(QWidget):
         """
         if allowed_values:
             # Use ComboBoxHandler for parameters with allowed values
-            handler = ComboBoxHandler()
-            widget = handler.create_widget(annotation, allowed_values, default)
+            combo_handler: TypeHandler = ComboBoxHandler()
+            widget = combo_handler.create_widget(annotation, allowed_values, default)
             return widget
         elif isinstance(annotation, type) and issubclass(annotation, Enum):
             # Use EnumHandler for Enum types without allowed values
-            handler = EnumHandler()
-            widget = handler.create_widget(annotation, default)
+            enum_handler: TypeHandler = EnumHandler()
+            widget = enum_handler.create_widget(annotation, default=default)
             return widget
         else:
             # Use appropriate TypeHandler based on annotation
             handler = TYPE_HANDLERS.get(annotation, StrHandler())
-            widget = handler.create_widget(annotation, default)
+            widget = handler.create_widget(annotation, default=default)
             return widget
 
     def get_value(self, widget: QWidget) -> Optional[Any]:
@@ -535,16 +612,16 @@ class SetupPanel(QWidget):
 
         if isinstance(widget, QComboBox):
             # Use ComboBoxHandler for ComboBox widgets
-            handler = ComboBoxHandler()
-            return handler.get_value(widget, param_type)
+            combo_handler = ComboBoxHandler()
+            return combo_handler.get_value(widget, param_type)
         elif isinstance(widget, QLineEdit):
             # Use appropriate TypeHandler based on param_type
             handler = TYPE_HANDLERS.get(param_type, StrHandler())
             return handler.get_value(widget, param_type)
         elif isinstance(widget, QCheckBox):
             # Use BoolHandler for CheckBox widgets
-            handler = TYPE_HANDLERS.get(bool, BoolHandler())
-            return handler.get_value(widget, bool)
+            bool_handler = TYPE_HANDLERS.get(bool, BoolHandler())
+            return bool_handler.get_value(widget, bool)
         else:
             logger.error(f"Unsupported widget type: {type(widget)}")
             return None  # Unsupported widget type

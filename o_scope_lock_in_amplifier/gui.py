@@ -1,13 +1,11 @@
-# main.py
-
 import csv
 import logging
 import sys
 import time
-from typing import Optional
+from typing import Dict, List, Optional, Union
 
 from PySide6.QtCore import QObject, Qt, QThread, Signal
-from PySide6.QtGui import QAction
+from PySide6.QtGui import QAction, QCloseEvent
 from PySide6.QtWidgets import (
     QApplication,
     QDoubleSpinBox,
@@ -26,19 +24,22 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from lock_in_proc import generate_reference_signals, perform_lock_in
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FuncFormatter
 import numpy as np
-from plot_widget import PlotWidget
-from setup_panel import SetupPanel
 
+from o_scope_lock_in_amplifier.lock_in_proc import (
+    generate_reference_signals,
+    perform_lock_in,
+)
 from o_scope_lock_in_amplifier.oscilloscope_utils import OScope
+from o_scope_lock_in_amplifier.plot_widget import PlotWidget
+from o_scope_lock_in_amplifier.setup_panel import SetupPanel
 
 logger = logging.getLogger("o_scope_lock_in_amplifier")
 
 
-def format_si_prefix(value, unit):
+def format_si_prefix(value: float, unit: str) -> str:
     """
     Formats a value with SI prefix.
 
@@ -85,7 +86,7 @@ class LockInSettingsPanel(QWidget):
     settings_changed = Signal()
     debug_run_requested = Signal()
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         layout = QFormLayout()
@@ -131,7 +132,7 @@ class LockInSettingsPanel(QWidget):
 
         self.setLayout(layout)
 
-    def get_settings(self):
+    def get_settings(self) -> Dict[str, Union[int, float]]:
         """
         Returns the current lock-in settings as a dictionary.
         """
@@ -152,14 +153,19 @@ class DataProcessor(QObject):
     phase_computed = Signal(float, float)  # (phase, timestamp)
     finished = Signal()
 
-    def __init__(self, oscilloscope: OScope, start_time: float, lock_in_settings: dict):
+    def __init__(
+        self,
+        oscilloscope: OScope,
+        start_time: float,
+        lock_in_settings: Dict[str, Union[int, float]],
+    ) -> None:
         super().__init__()
         self.oscilloscope = oscilloscope
         self._is_running = True
         self.start_time = start_time  # Reference start time
         self.lock_in_settings = lock_in_settings
 
-    def run(self):
+    def run(self) -> None:
         """
         The main loop that acquires data, processes it, and emits the results.
         """
@@ -171,7 +177,7 @@ class DataProcessor(QObject):
                 results = perform_lock_in(
                     ampl_data=data,
                     low_pass_cutoff=self.lock_in_settings["low_pass_cutoff"],
-                    filter_order=self.lock_in_settings["filter_order"],
+                    filter_order=int(self.lock_in_settings["filter_order"]),
                 )
 
                 # Get amplitude and phase
@@ -197,7 +203,7 @@ class DataProcessor(QObject):
                 self.finished.emit()
                 break
 
-    def stop(self):
+    def stop(self) -> None:
         """
         Stop the worker loop.
         """
@@ -205,15 +211,15 @@ class DataProcessor(QObject):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("Oscilloscope Lock-In Amplifier")
         self.resize(1200, 800)
 
         # Initialize data storage lists
-        self.amplitude_data = []
-        self.phase_data = []
-        self.time_data = []
+        self.amplitude_data: List[float] = []
+        self.phase_data: List[float] = []
+        self.time_data: List[float] = []
 
         # Create a central widget with a vertical layout
         central_widget = QWidget()
@@ -251,12 +257,12 @@ class MainWindow(QMainWindow):
         self.current_bar_layout = QHBoxLayout()
 
         self.current_amplitude_bar = QProgressBar()
-        self.current_amplitude_bar.setOrientation(Qt.Horizontal)
+        self.current_amplitude_bar.setOrientation(Qt.Orientation.Horizontal)
         self.current_amplitude_bar.setMaximum(100)  # Example max value
         self.current_amplitude_bar.setFormat("Amplitude: %p%")
 
         self.current_phase_bar = QProgressBar()
-        self.current_phase_bar.setOrientation(Qt.Horizontal)
+        self.current_phase_bar.setOrientation(Qt.Orientation.Horizontal)
         self.current_phase_bar.setMaximum(180)  # Phase in degrees (0-180)
         self.current_phase_bar.setFormat("Phase: %p°")
 
@@ -292,7 +298,7 @@ class MainWindow(QMainWindow):
 
         # Placeholder for oscilloscope worker and thread
         self.oscilloscope_worker: Optional[DataProcessor] = None
-        self.thread: Optional[QThread] = None
+        self.worker_thread: Optional[QThread] = None
 
         # Start time for relative time display
         self.start_time = time.time()
@@ -307,7 +313,7 @@ class MainWindow(QMainWindow):
         # Connect debug run signal from lock-in settings panel
         self.lock_in_settings_view.debug_run_requested.connect(self.perform_debug_run)
 
-    def handle_configuration(self, oscilloscope: OScope):
+    def handle_configuration(self, oscilloscope: OScope) -> None:
         """
         Handle the oscilloscope configuration by preparing for data acquisition.
         """
@@ -315,17 +321,20 @@ class MainWindow(QMainWindow):
         # Enable the Run button since oscilloscope is configured
         self.run_button.setEnabled(True)
 
-    def start_data_acquisition(self):
+    def start_data_acquisition(self) -> None:
         """
         Start the data acquisition and processing thread.
         """
         # Prevent starting multiple threads
-        if self.oscilloscope_worker and self.thread:
-            if self.thread.isRunning():
+        if self.oscilloscope_worker and self.worker_thread:
+            if self.worker_thread.isRunning():
                 logger.warning("Data acquisition is already running.")
                 return
 
-        if not hasattr(self, "setup_view") or not self.setup_view.oscilloscope:
+        if (
+            not hasattr(self.setup_view, "oscilloscope")
+            or not self.setup_view.oscilloscope
+        ):
             QMessageBox.warning(
                 self, "No Oscilloscope", "Please initialize an oscilloscope first."
             )
@@ -340,21 +349,21 @@ class MainWindow(QMainWindow):
         self.oscilloscope_worker = DataProcessor(
             oscilloscope, self.start_time, lock_in_settings
         )
-        self.thread = QThread()
+        self.worker_thread = QThread()
 
         # Move the worker to the thread
-        self.oscilloscope_worker.moveToThread(self.thread)
+        self.oscilloscope_worker.moveToThread(self.worker_thread)
 
         # Connect signals and slots
-        self.thread.started.connect(self.oscilloscope_worker.run)
+        self.worker_thread.started.connect(self.oscilloscope_worker.run)
         self.oscilloscope_worker.amplitude_computed.connect(self.update_amplitude)
         self.oscilloscope_worker.phase_computed.connect(self.update_phase)
-        self.oscilloscope_worker.finished.connect(self.thread.quit)
+        self.oscilloscope_worker.finished.connect(self.worker_thread.quit)
         self.oscilloscope_worker.finished.connect(self.oscilloscope_worker.deleteLater)
-        self.thread.finished.connect(self.thread.deleteLater)
+        self.worker_thread.finished.connect(self.worker_thread.deleteLater)
 
         # Start the thread
-        self.thread.start()
+        self.worker_thread.start()
 
         # Update button states
         self.run_button.setEnabled(False)
@@ -362,14 +371,18 @@ class MainWindow(QMainWindow):
 
         logger.info("Data acquisition started.")
 
-    def stop_data_acquisition(self):
+    def stop_data_acquisition(self) -> None:
         """
         Stop the data acquisition and processing thread.
         """
-        if self.oscilloscope_worker and self.thread and self.thread.isRunning():
+        if (
+            self.oscilloscope_worker
+            and self.worker_thread
+            and self.worker_thread.isRunning()
+        ):
             self.oscilloscope_worker.stop()
-            self.thread.quit()
-            self.thread.wait()
+            self.worker_thread.quit()
+            self.worker_thread.wait()
 
             # Update button states
             self.run_button.setEnabled(True)
@@ -379,11 +392,11 @@ class MainWindow(QMainWindow):
 
             # Clear references to allow garbage collection
             self.oscilloscope_worker = None
-            self.thread = None
+            self.worker_thread = None
         else:
             logger.warning("Data acquisition is not running.")
 
-    def update_amplitude(self, amplitude: float, timestamp: float):
+    def update_amplitude(self, amplitude: float, timestamp: float) -> None:
         """
         Update the amplitude plot and progress bar.
         """
@@ -398,7 +411,7 @@ class MainWindow(QMainWindow):
         scaled_amp = min(max(amplitude, 0), 100)
         self.current_amplitude_bar.setValue(int(scaled_amp))
 
-    def update_phase(self, phase: float, timestamp: float):
+    def update_phase(self, phase: float, timestamp: float) -> None:
         """
         Update the phase plot and progress bar.
         """
@@ -412,7 +425,7 @@ class MainWindow(QMainWindow):
         scaled_phase = min(max(phase, 0), 180)
         self.current_phase_bar.setValue(int(scaled_phase))
 
-    def export_data(self):
+    def export_data(self) -> None:
         """
         Export the collected data (phase, amplitude, time) to a CSV file.
         """
@@ -430,7 +443,6 @@ class MainWindow(QMainWindow):
             "Export Data to CSV",
             "",
             "CSV Files (*.csv);;All Files (*)",
-            options=QFileDialog.Options(),
         )
 
         if file_path:
@@ -459,11 +471,14 @@ class MainWindow(QMainWindow):
                     f"An error occurred while exporting data:\n{e}",
                 )
 
-    def perform_debug_run(self):
+    def perform_debug_run(self) -> None:
         """
         Perform a debug run that acquires data once and generates plots.
         """
-        if not hasattr(self, "setup_view") or not self.setup_view.oscilloscope:
+        if (
+            not hasattr(self.setup_view, "oscilloscope")
+            or not self.setup_view.oscilloscope
+        ):
             QMessageBox.warning(
                 self, "No Oscilloscope", "Please initialize an oscilloscope first."
             )
@@ -490,7 +505,7 @@ class MainWindow(QMainWindow):
         results = perform_lock_in(
             ampl_data=data,
             low_pass_cutoff=lock_in_settings["low_pass_cutoff"],
-            filter_order=lock_in_settings["filter_order"],
+            filter_order=int(lock_in_settings["filter_order"]),
         )
 
         # Get time array
@@ -565,11 +580,11 @@ class MainWindow(QMainWindow):
         axs[1, 1].grid(True)
 
         plt.tight_layout(
-            rect=[0, 0.03, 1, 0.95]
+            rect=(0, 0.03, 1, 0.95)
         )  # Adjust layout to make room for the title
         plt.show()
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QCloseEvent) -> None:
         """
         Ensure that the worker thread is properly terminated when the application closes.
         """

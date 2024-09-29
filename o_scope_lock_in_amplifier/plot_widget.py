@@ -1,4 +1,4 @@
-# plot_widget.py
+from typing import List, Optional
 
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
@@ -7,21 +7,25 @@ from matplotlib.figure import Figure
 
 
 class PlotWidget(QWidget):
-    def __init__(self, title: str, xlabel: str, ylabel: str, parent=None):
+    def __init__(
+        self, title: str, xlabel: str, ylabel: str, parent: Optional[QWidget] = None
+    ) -> None:
         super().__init__(parent)
 
         # Create a vertical layout to hold the toolbar and canvas
-        self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
+        self.main_layout = (
+            QVBoxLayout()
+        )  # Renamed to avoid conflict with QWidget.layout() method
+        self.setLayout(self.main_layout)
 
         # Initialize the Matplotlib Figure and Canvas
         self.figure = Figure()
-        self.canvas = FigureCanvas(self.figure)
-        self.layout.addWidget(self.canvas)
+        self.canvas = FigureCanvas(self.figure)  # type: ignore
+        self.main_layout.addWidget(self.canvas)
 
         # Initialize the Navigation Toolbar and add it to the layout
-        self.toolbar = NavigationToolbar(self.canvas, self)
-        self.layout.addWidget(self.toolbar)
+        self.toolbar = NavigationToolbar(self.canvas, self)  # type: ignore
+        self.main_layout.addWidget(self.toolbar)
 
         # Create an Axes instance
         self.ax = self.figure.add_subplot(111)
@@ -33,10 +37,10 @@ class PlotWidget(QWidget):
         (self.line,) = self.ax.plot([], [], "r-")  # 'r-' is a red solid line
 
         # Lists to store the data points
-        self.x_data = []
-        self.y_data = []
+        self.x_data: List[float] = []
+        self.y_data: List[float] = []
 
-    def plot(self, x: float, y: float):
+    def plot(self, x: float, y: float) -> None:
         """
         Add a new data point to the plot and update the display.
         """
@@ -49,9 +53,9 @@ class PlotWidget(QWidget):
         self.ax.autoscale_view()
 
         # Redraw the canvas
-        self.canvas.draw_idle()  # Use draw_idle for better performance during rapid updates
+        self.canvas.draw_idle()  # type: ignore  # Use draw_idle for better performance during rapid updates
 
-    def clear(self):
+    def clear(self) -> None:
         """
         Clear the current plot data.
         """
@@ -60,4 +64,4 @@ class PlotWidget(QWidget):
         self.line.set_data([], [])
         self.ax.relim()
         self.ax.autoscale_view()
-        self.canvas.draw_idle()
+        self.canvas.draw_idle()  # type: ignore
