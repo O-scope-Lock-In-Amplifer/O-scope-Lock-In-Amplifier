@@ -416,7 +416,7 @@ class MainWindow(QMainWindow):
         Update the phase plot and progress bar.
         """
         # Update phase plot with relative time
-        self.phase_plot.plot(timestamp, phase)
+        self.phase_plot.plot(timestamp, phase % 360.0)
 
         # Append data to list for export
         self.phase_data.append(phase)

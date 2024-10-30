@@ -3,10 +3,10 @@ from typing import cast
 from numpy import ndarray
 import numpy as np
 from scipy.fft import fft, fftfreq  # type: ignore
-from scipy.signal import butter, filtfilt  # type: ignore
+from scipy.signal import butter, filtfilt, lfilter  # type: ignore
 
 from o_scope_lock_in_amplifier.oscilloscope_utils import AcquisitionData
-
+import matplotlib.pyplot as plt
 
 def extract_fundamental_frequency(ref_dat: np.ndarray, time_increment: float) -> float:
     """
@@ -51,8 +51,8 @@ def low_pass_filter(
     nyquist = 0.5 * fs
     normal_cutoff = cutoff / nyquist
     b, a = butter(order, normal_cutoff, btype="low", analog=False)
-    padlen = min(3 * (max(len(a), len(b)) - 1), len(signal) - 1)
-    filtered_signal = cast(np.ndarray, filtfilt(b, a, signal, padlen=padlen))
+    # padlen = min(3 * (max(len(a), len(b)) - 1), len(signal) - 1)
+    filtered_signal = cast(np.ndarray, lfilter(b, a, signal))
     return filtered_signal
 
 
@@ -88,6 +88,13 @@ def perform_lock_in(
     I_filtered = low_pass_filter(I, low_pass_cutoff, fs, order=filter_order)
     Q_filtered = low_pass_filter(Q, low_pass_cutoff, fs, order=filter_order)
 
+    #plt.plot(I, label="I")
+    #plt.plot(Q, label="Q")
+    #plt.plot(I_filtered, label="I_filtered")
+    #plt.plot(Q_filtered, label="Q_filtered")
+    #plt.legend()
+    #plt.show()
+
     # Compute amplitude and phase
     amplitude = (
         np.sqrt(I_filtered**2 + Q_filtered**2) * 2
@@ -99,7 +106,7 @@ def perform_lock_in(
     phase_corrected = phase - ref_phase
 
     # Unwrap phase to prevent discontinuities
-    phase_corrected = np.unwrap(phase_corrected)
+    phase_corrected = phase_corrected
 
     return {
         "time": t,
