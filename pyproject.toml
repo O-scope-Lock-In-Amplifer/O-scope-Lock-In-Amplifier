@@ -42,6 +42,9 @@ dev = [
     "PySide6-stubs~=6.4.2.0",
     "scipy-stubs~=1.4.1a3"
 ]
+ps6000e = [
+	"ps6000a~=0.1.1",
+]
 
 [project.scripts]
 o_scope_lock_in_amplifier = "o_scope_lock_in_amplifier.cli:main"

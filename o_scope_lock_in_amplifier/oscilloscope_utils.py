@@ -23,6 +23,9 @@ class AcquisitionData:
 
 
 class OScope(abc.ABC):
+
+    idn: Any
+
     def __init__(
         self,
         ref_channel: OscilloscopeChannels = OscilloscopeChannels.CHANNEL_1,

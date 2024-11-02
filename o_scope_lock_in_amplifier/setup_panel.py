@@ -461,7 +461,8 @@ class SetupPanel(QWidget):
             if name.startswith("_"):
                 continue  # Skip private/protected methods
             if not callable(method):
-                continue  # Ensure it's callable
+                # Ensure it's callable
+                continue  # type: ignore
 
             # Skip __init__, already handled
             if name == "__init__":
