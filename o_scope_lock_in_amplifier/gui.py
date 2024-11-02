@@ -1,5 +1,6 @@
 import csv
 import logging
+import math
 import sys
 import time
 from typing import Dict, List, Optional, Union
@@ -50,6 +51,8 @@ def format_si_prefix(value: float, unit: str) -> str:
     Returns:
         str: Formatted string with SI prefix.
     """
+    if math.isnan(value):
+        return f"NaN {unit}"
     if value == 0:
         return f"0 {unit}"
     exponent = int(np.floor(np.log10(abs(value)) / 3) * 3)
