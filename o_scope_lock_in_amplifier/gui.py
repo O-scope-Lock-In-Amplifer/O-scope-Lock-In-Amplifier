@@ -254,6 +254,9 @@ class MainWindow(QMainWindow):
 
         # Plots
         self.amplitude_plot = PlotWidget("Amplitude vs Time", "Time (s)", "Amplitude")
+        self.amplitude_plot.ax.yaxis.set_major_formatter(
+            FuncFormatter(lambda y, _: format_si_prefix(y, "V"))
+        )
         self.phase_plot = PlotWidget("Phase vs Time", "Time (s)", "Phase (degrees)")
 
         # Current Phase and Amplitude Bars
@@ -278,10 +281,12 @@ class MainWindow(QMainWindow):
         self.button_layout = QHBoxLayout()
         self.run_button = QPushButton("Run")
         self.stop_button = QPushButton("Stop")
+        self.clear_button = QPushButton("Clear")
         self.stop_button.setEnabled(False)  # Initially disabled
 
         self.button_layout.addWidget(self.run_button)
         self.button_layout.addWidget(self.stop_button)
+        self.button_layout.addWidget(self.clear_button)
 
         # Add to main layout
         self.main_layout.addWidget(self.amplitude_plot)
@@ -312,6 +317,7 @@ class MainWindow(QMainWindow):
         # Connect Run and Stop buttons
         self.run_button.clicked.connect(self.start_data_acquisition)
         self.stop_button.clicked.connect(self.stop_data_acquisition)
+        self.clear_button.clicked.connect(self.clear_data)
 
         # Connect debug run signal from lock-in settings panel
         self.lock_in_settings_view.debug_run_requested.connect(self.perform_debug_run)
@@ -373,6 +379,15 @@ class MainWindow(QMainWindow):
         self.stop_button.setEnabled(True)
 
         logger.info("Data acquisition started.")
+
+    def clear_data(self) -> None:
+        self.amplitude_data = []
+        self.phase_data = []
+        self.time_data = []
+        self.amplitude_plot.x_data = []
+        self.amplitude_plot.y_data = []
+        self.phase_plot.x_data = []
+        self.phase_plot.y_data = []
 
     def stop_data_acquisition(self) -> None:
         """
