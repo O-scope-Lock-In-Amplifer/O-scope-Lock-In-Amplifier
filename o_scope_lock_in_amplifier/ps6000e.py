@@ -1,12 +1,13 @@
 """
 Adapter for PicoScope 6000E series USB oscilloscopes.
 
-This adapter uses Marcus Engineering's proprietary ps6000a wrapper for the
-PicoScope API. Hopefully this will be open-sourced quite soon, but right now
-you'll just have to imagine it working.
+This adapter uses Marcus Engineering's open-source ps6000a wrapper for the
+PicoScope API, available here:
+
+https://github.com/Marcus-Engineering/ps6000a
 
 Type ignores should be removed once ps6000a package can actually be installed
-through normal means.
+through normal means (it's not on pip right now).
 """
 
 from dataclasses import dataclass
